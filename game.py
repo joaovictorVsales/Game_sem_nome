@@ -2,7 +2,6 @@ import pygame
 from pygame.locals import *
 pygame.init()
 
-
 clock = pygame.time.Clock()
 fps = 60
 
@@ -67,13 +66,27 @@ bullet_group = pygame.sprite.Group()
 player = Ship(int(SCREEN_WIDTH / 2), SCREEN_HEIGHT - 100)
 ship_group.add(player)
 
-
 bg = pygame.image.load('image/back.jpeg')
 bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
+bg_img1 = 0
+bg_img2 = SCREEN_HEIGHT
+bg_speed = 8
 
 
 def draw_bg():
-    screen.blit(bg, (0, 0))
+    global bg_img1, bg_img2
+
+    bg_img1 -= bg_speed
+    bg_img2 -= bg_speed
+
+    if  bg_img1 <= -SCREEN_HEIGHT:
+        bg_img1 = bg_img2 + SCREEN_HEIGHT
+    if  bg_img2 <= -SCREEN_HEIGHT:
+        bg_img2 = bg_img1 + SCREEN_HEIGHT
+    
+
+    screen.blit(bg, (0, bg_img1))
+    screen.blit(bg, (0, bg_img2))
 
 
 run = True
@@ -81,24 +94,18 @@ while run:
 
     clock.tick(fps)
 
-    
     draw_bg()
 
     player.update()
     bullet_group.update()
-
-    
+   
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False  
-
-    
+   
     ship_group.draw(screen)
     bullet_group.draw(screen)
-
-
     
     pygame.display.update()
-
 
 pygame.quit()
