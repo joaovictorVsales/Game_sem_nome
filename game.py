@@ -69,20 +69,20 @@ ship_group.add(player)
 bg = pygame.image.load('image/back.jpeg')
 bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
 bg_img1 = 0
-bg_img2 = SCREEN_HEIGHT
+bg_img2 = -SCREEN_HEIGHT
 bg_speed = 8
 
 
 def draw_bg():
     global bg_img1, bg_img2
 
-    bg_img1 -= bg_speed
-    bg_img2 -= bg_speed
+    bg_img1 += bg_speed
+    bg_img2 += bg_speed
 
-    if  bg_img1 <= -SCREEN_HEIGHT:
-        bg_img1 = bg_img2 + SCREEN_HEIGHT
-    if  bg_img2 <= -SCREEN_HEIGHT:
-        bg_img2 = bg_img1 + SCREEN_HEIGHT
+    if  bg_img1 >= SCREEN_HEIGHT:
+        bg_img1 = bg_img2 - SCREEN_HEIGHT
+    if  bg_img2 >= SCREEN_HEIGHT:
+        bg_img2 = bg_img1 - SCREEN_HEIGHT
     
 
     screen.blit(bg, (0, bg_img1))
