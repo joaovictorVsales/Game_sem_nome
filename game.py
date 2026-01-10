@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-import random
+from random import randint
 pygame.init()
 
 clock = pygame.time.Clock()
@@ -9,7 +9,6 @@ fps = 60
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 625
-
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Sla')
@@ -23,7 +22,7 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.last_bullet = pygame.time.get_ticks()
-
+        self.hp = 3
 
     def update(self):
         ship_speed = 8
@@ -39,6 +38,15 @@ class Ship(pygame.sprite.Sprite):
         if key[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:
             self.rect.y += ship_speed
 
+        if key[pygame.K_a] and self.rect.left > 0:
+            self.rect.x -= ship_speed   
+        if key[pygame.K_d] and self.rect.right < SCREEN_WIDTH:
+            self.rect.x += ship_speed
+        if key[pygame.K_w] and self.rect.top > 0:
+            self.rect.y -= ship_speed
+        if key[pygame.K_s] and self.rect.bottom < SCREEN_HEIGHT:
+            self.rect.y += ship_speed
+
         #tiro
         cooldown = 400
         time_now = pygame.time.get_ticks()
@@ -46,7 +54,9 @@ class Ship(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.top)
             bullet_group.add(bullet)
             self.last_bullet = time_now
-           
+        
+        if self.hp <= 0:
+            self.kill()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -58,6 +68,10 @@ class Bullet(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.y -= 12
+        if self.rect.y < 0:
+            self.kill()
+        if pygame.sprite.spritecollide(self, asteroid_group, True):
+            self.kill()
         
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self):
@@ -65,16 +79,18 @@ class Asteroid(pygame.sprite.Sprite):
         self.image = pygame.image.load('image/asteroid.png')
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
-        self.rect.x = random.randint(1, SCREEN_WIDTH)
-        self.rect.y = random.randint(-100, 1)
-        self.speed = random.randint (5, 10)
+        self.rect.x = randint(1, SCREEN_WIDTH - self.rect.width)
+        self.rect.y = randint(-200, 1)
+        self.speed = randint (5, 10)
 
     def update(self):
         self.rect.y += self.speed
         if self.rect.top > SCREEN_HEIGHT:
             self.kill()
+        if pygame.sprite.spritecollide(self, ship_group, False):
+            self.kill()
+            player.hp -= 1
 
-        
 ship_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 asteroid_group = pygame.sprite.Group()
@@ -100,10 +116,10 @@ def draw_bg():
     if  bg_img2 >= SCREEN_HEIGHT:
         bg_img2 = bg_img1 - SCREEN_HEIGHT
     
-
     screen.blit(bg, (0, bg_img1))
     screen.blit(bg, (0, bg_img2))
 
+#controle de spawn dos asteroides
 last_asteroid = pygame.time.get_ticks()
 asteroid_timer = 500
 
